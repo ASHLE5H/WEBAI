@@ -6,6 +6,9 @@ import Colors from '@/data/Colors';
 import { MessagesContext } from '@/context/MessagesContext';
 import { UserDetailContext } from '@/context/UserDetailContext';
 import SignInDialog from './SignInDialog';
+import { useMutation } from 'convex/react';
+import { useRouter } from "next/navigation";
+import { api } from '@/convex/_generated/api';
 
 function Hero() {
     
@@ -13,16 +16,26 @@ function Hero() {
     const {messages ,setMessages} = useContext(MessagesContext);
     const {userDetail,setUserDetail} = useContext(UserDetailContext);
     const [openDialog,setOpenDialog] = useState(false);
+    const CreateWorkspace = useMutation(api.workspace.CreateWorkspace);
+    const router = useRouter()
 
-    const onGenerate = (input)=>{
+    const onGenerate = async(input)=>{
         if(!userDetail?.name){
             setOpenDialog(true);
             return;
         }
-        setMessages({
+        const msg={
             role:'user',
             content:input
+        }
+        setMessages(msg);
+
+        const workspaceId = await CreateWorkspace({
+            user:userDetail._id,
+            messages:[msg]
         })
+        console.log(workspaceId)
+        router.push('/workspace/'+workspaceId)
     }
 
     return(
