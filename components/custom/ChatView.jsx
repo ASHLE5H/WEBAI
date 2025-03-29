@@ -20,50 +20,50 @@ function ChatView() {
     const { userDetail } = useContext(UserDetailContext);
     const [userInput, setUserInput] = useState("");
 
-    // useEffect(() => {
-    //     if (id) {
-    //         GetWorkspaceData();
-    //     }
-    // }, [id]);
+    useEffect(() => {
+        if (id) {
+            GetWorkspaceData();
+        }
+    }, [id]);
 
-    // const GetWorkspaceData = async () => {
+    const GetWorkspaceData = async () => {
+        try {
+            const result = await convex.query(api.workspace.GetWorkspace, {
+                workspaceId: id,
+            });
+            setMessages(result?.messages || []); // Ensure messages is an array
+            console.log(result);
+        } catch (error) {
+            console.error("Error fetching workspace data:", error);
+        }
+    };
+
+    useEffect(() => {
+        if (messages?.length > 0) {
+            const role = messages[messages.length - 1].role;
+            if (role === "user") {
+                GetAiResponse();
+            }
+        }
+    }, [messages]);
+
+    // const GetAiResponse = async () => {
     //     try {
-    //         const result = await convex.query(api.workspace.GetWorkspace, {
-    //             workspaceId: id,
+    //         const PROMPT = JSON.stringify(messages) + Prompt.CHAT_PROMPT;
+    //         const result = await axios.post("/api/ai-chat", {
+    //             prompt: PROMPT,
     //         });
-    //         setMessages(result?.messages || []); // Ensure messages is an array
-    //         console.log(result);
+    //         console.log(result.data.result);
     //     } catch (error) {
-    //         console.error("Error fetching workspace data:", error);
+    //         console.error("Error in GetAiResponse:", error);
     //     }
     // };
 
-    // useEffect(() => {
-    //     if (messages?.length > 0) {
-    //         const role = messages[messages.length - 1].role;
-    //         if (role === "user") {
-    //             GetAiResponse();
-    //         }
-    //     }
-    // }, [messages]);
-
-    // // const GetAiResponse = async () => {
-    // //     try {
-    // //         const PROMPT = JSON.stringify(messages) + Prompt.CHAT_PROMPT;
-    // //         const result = await axios.post("/api/ai-chat", {
-    // //             prompt: PROMPT,
-    // //         });
-    // //         console.log(result.data.result);
-    // //     } catch (error) {
-    // //         console.error("Error in GetAiResponse:", error);
-    // //     }
-    // // };
-
-    // const handleGenerate = async () => {
-    //     if (!userInput.trim()) return;
-    //     setMessages((prev) => [...prev, { role: "user", content: userInput }]);
-    //     setUserInput(""); // Clear input after sending
-    // };
+    const handleGenerate = async () => {
+        if (!userInput.trim()) return;
+        setMessages((prev) => [...prev, { role: "user", content: userInput }]);
+        setUserInput(""); // Clear input after sending
+    };
 
     return (
         <div className="relative h-[85vh] flex flex-col">
